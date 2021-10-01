@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 import { URL } from 'url';
@@ -18,25 +19,27 @@ import { URL } from 'url';
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
 
-  app.get('/filteredimage', async ( req, res ) => {
-    //let url = req.query;
+  app.get('/filteredimage', async (req: Request, res: Response ) => {
+    
     const url = req.query['image_url'] as string;
-    console.log(url);
+    
     if (!url ) {
          return res.status(400).send({message: 'Url is required'});
     }
     if(!url.includes("http")){
         return res.status(400).send({message: 'Url malformed'});
     }
-    let filteredurl = await filterImageFromURL(url);
+
+    const filteredurl = await filterImageFromURL(url);
+
     if (!filteredurl ) {
       return res.status(400).send({message: 'filtering failed'});
  }
-    console.log(filteredurl);
+ 
     res.status(200).sendFile(filteredurl , () =>
     deleteLocalFiles([filteredurl ])
   );
-    console.log("deleted");
+  
 });
 
 
